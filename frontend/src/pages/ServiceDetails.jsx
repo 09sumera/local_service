@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+
+const API_URL = import.meta.env.VITE_API_URL;
 import { AuthContext } from '../context/AuthContext';
 import { getDefaultImage } from '../utils/imageUtils';
 
@@ -14,7 +16,7 @@ const ServiceDetails = () => {
   useEffect(() => {
     const fetchService = async () => {
       try {
-        const res = await axios.get(`/api/services/${id}`);
+        const res = await axios.get(`${API_URL}/api/services/${id}`);
         setService(res.data);
       } catch (err) {
         console.error(err);
@@ -33,7 +35,7 @@ const ServiceDetails = () => {
       return;
     }
     try {
-      await axios.post('/api/bookings', { service_id: id, date: bookingDate });
+      await axios.post(`${API_URL}/api/bookings`, { service_id: id, date: bookingDate });
       alert('Booking created successfully!');
       navigate('/profile');
     } catch (err) {
@@ -115,7 +117,7 @@ const ServiceDetails = () => {
               
               {service.reviews && service.reviews.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {service.reviews.map(review => (
+                  {(Array.isArray(service.reviews) ? service.reviews : []).map(review => (
                     <div key={review.id} className="bg-white border border-gray-100 p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
                       <div className="flex justify-between items-start mb-4">
                         <div className="flex items-center gap-3">

@@ -68,7 +68,7 @@ const Services = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {Array.isArray(services) &&
-            services.map((service) => (
+            (Array.isArray(services) ? services : []).map((service) => (
               <div
                 key={service.id}
                 className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow group flex flex-col"

@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
+
+const API_URL = import.meta.env.VITE_API_URL;
 import { AuthContext } from '../context/AuthContext';
 import { getDefaultImage, isValidImageUrl } from '../utils/imageUtils';
 
@@ -22,15 +24,25 @@ const ProviderDashboard = () => {
 
   const fetchServices = async () => {
     try {
-      const res = await axios.get('/api/services/provider');
-      setServices(res.data);
+      const res = await axios.get(`${API_URL}/api/services/provider`);
+      if (Array.isArray(res.data)) {
+        setServices(res.data);
+      } else {
+        console.error('API returned object instead of array:', res.data);
+        setServices([]);
+      }
     } catch (err) { console.error(err); }
   };
 
   const fetchBookings = async () => {
     try {
-      const res = await axios.get('/api/bookings/provider');
-      setBookings(res.data);
+      const res = await axios.get(`${API_URL}/api/bookings/provider`);
+      if (Array.isArray(res.data)) {
+        setBookings(res.data);
+      } else {
+        console.error('API returned object instead of array:', res.data);
+        setBookings([]);
+      }
     } catch (err) { console.error(err); }
   };
 
@@ -41,7 +53,7 @@ const ProviderDashboard = () => {
       return;
     }
     try {
-      await axios.post('/api/services', formData);
+      await axios.post(`${API_URL}/api/services`, formData);
       setFormData({ title: '', description: '', category: 'Cleaning', price: '', image_url: '' });
       fetchServices();
       alert('Service added!');
@@ -67,7 +79,7 @@ const ProviderDashboard = () => {
       return;
     }
     try {
-      await axios.put(`/api/services/${editServiceId}`, editFormData);
+      await axios.put(`${API_URL}/api/services/${editServiceId}`, editFormData);
       setEditServiceId(null);
       fetchServices();
       alert('Service updated successfully!');
@@ -77,7 +89,7 @@ const ProviderDashboard = () => {
   const handleDeleteService = async (id) => {
     if (!window.confirm('Are you sure you want to delete this service?')) return;
     try {
-      await axios.delete(`/api/services/${id}`);
+      await axios.delete(`${API_URL}/api/services/${id}`);
       fetchServices();
       alert('Service deleted!');
     } catch (err) { alert('Failed to delete service'); }
@@ -85,7 +97,7 @@ const ProviderDashboard = () => {
 
   const updateBookingStatus = async (id, status) => {
     try {
-      await axios.put(`/api/bookings/${id}/status`, { status });
+      await axios.put(`${API_URL}/api/bookings/${id}/status`, { status });
       fetchBookings();
       alert(`Booking status updated to ${status}`);
     } catch (err) { alert('Update failed'); }
@@ -172,7 +184,7 @@ const ProviderDashboard = () => {
                 <p className="text-gray-500 text-sm">You haven't received any bookings for your services.</p>
               </div>
             ) : (
-              bookings.map(booking => (
+              (Array.isArray(bookings) ? bookings : []).map(booking => (
                 <div key={booking.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
                   <div className="p-6 md:p-8 flex flex-col md:flex-row justify-between md:items-center gap-6">
                     <div className="flex items-start gap-5">
@@ -233,7 +245,7 @@ const ProviderDashboard = () => {
                 <p className="text-gray-500">No services found. Add one to get started!</p>
               </div>
             )}
-            {services.map(service => (
+            {(Array.isArray(services) ? services : []).map(service => (
               <div key={service.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow group flex flex-col relative">
                 {editServiceId === service.id ? (
                   <div className="p-6">

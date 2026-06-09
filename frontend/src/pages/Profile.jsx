@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
+
+const API_URL = import.meta.env.VITE_API_URL;
 import { AuthContext } from '../context/AuthContext';
 import { CheckCircle } from 'lucide-react';
 
@@ -25,8 +27,13 @@ const Profile = () => {
 
   const fetchBookings = async () => {
     try {
-      const res = await axios.get('/api/bookings/customer');
-      setBookings(res.data);
+      const res = await axios.get(`${API_URL}/api/bookings/customer`);
+      if (Array.isArray(res.data)) {
+        setBookings(res.data);
+      } else {
+        console.error('API returned object instead of array:', res.data);
+        setBookings([]);
+      }
     } catch (err) {
       console.error(err);
     }
@@ -34,7 +41,7 @@ const Profile = () => {
 
   const handlePay = async (bookingId, amount) => {
     try {
-      const res = await axios.post(`/api/bookings/${bookingId}/pay`, { amount, method: 'upi' });
+      const res = await axios.post(`${API_URL}/api/bookings/${bookingId}/pay`, { amount, method: 'upi' });
       showToast(`Payment successful! Transaction ID: ${res.data.transactionId}`);
       fetchBookings();
     } catch (err) {
@@ -45,7 +52,7 @@ const Profile = () => {
   const submitReview = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`/api/services/${reviewServiceId}/reviews`, reviewData);
+      await axios.post(`${API_URL}/api/services/${reviewServiceId}/reviews`, reviewData);
       showToast('Review submitted successfully!');
       setReviewServiceId(null);
       setReviewData({ rating: 5, comment: '' });
@@ -93,7 +100,7 @@ const Profile = () => {
                 <p className="text-gray-500 text-sm">You haven't booked any services. Explore our services to get started!</p>
               </div>
             ) : (
-              bookings.map(booking => (
+              (Array.isArray(bookings) ? bookings : []).map(booking => (
                 <div key={booking.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
                   <div className="p-6 sm:p-8">
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-6">

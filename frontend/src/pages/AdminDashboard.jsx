@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
+
+const API_URL = import.meta.env.VITE_API_URL;
 import { AuthContext } from '../context/AuthContext';
 
 const AdminDashboard = () => {
@@ -30,23 +32,33 @@ const AdminDashboard = () => {
 
   const fetchStats = async () => {
     try {
-      const res = await axios.get('/api/admin/stats');
+      const res = await axios.get(`${API_URL}/api/admin/stats`);
       setStats(res.data);
     } catch (err) { console.error(err); }
   };
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.get('/api/admin/users');
-      setUsers(res.data);
+      const res = await axios.get(`${API_URL}/api/admin/users`);
+      if (Array.isArray(res.data)) {
+        setUsers(res.data);
+      } else {
+        console.error('API returned object instead of array:', res.data);
+        setUsers([]);
+      }
     } catch (err) { console.error(err); }
   };
 
   const fetchBookings = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('/api/admin/bookings');
-      setBookings(res.data);
+      const res = await axios.get(`${API_URL}/api/admin/bookings`);
+      if (Array.isArray(res.data)) {
+        setBookings(res.data);
+      } else {
+        console.error('API returned object instead of array:', res.data);
+        setBookings([]);
+      }
     } catch (err) { console.error(err); }
     setLoading(false);
   };
@@ -54,8 +66,13 @@ const AdminDashboard = () => {
   const fetchServices = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('/api/services');
-      setServices(res.data);
+      const res = await axios.get(`${API_URL}/api/services`);
+      if (Array.isArray(res.data)) {
+        setServices(res.data);
+      } else {
+        console.error('API returned object instead of array:', res.data);
+        setServices([]);
+      }
     } catch (err) { console.error(err); }
     setLoading(false);
   };
@@ -63,8 +80,13 @@ const AdminDashboard = () => {
   const fetchPayments = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('/api/admin/payments');
-      setPayments(res.data);
+      const res = await axios.get(`${API_URL}/api/admin/payments`);
+      if (Array.isArray(res.data)) {
+        setPayments(res.data);
+      } else {
+        console.error('API returned object instead of array:', res.data);
+        setPayments([]);
+      }
     } catch (err) { console.error(err); }
     setLoading(false);
   };
@@ -72,15 +94,20 @@ const AdminDashboard = () => {
   const fetchReviews = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('/api/admin/reviews');
-      setReviews(res.data);
+      const res = await axios.get(`${API_URL}/api/admin/reviews`);
+      if (Array.isArray(res.data)) {
+        setReviews(res.data);
+      } else {
+        console.error('API returned object instead of array:', res.data);
+        setReviews([]);
+      }
     } catch (err) { console.error(err); }
     setLoading(false);
   };
 
   const updateBookingStatus = async (id, status) => {
     try {
-      await axios.put(`/api/bookings/${id}/status`, { status });
+      await axios.put(`${API_URL}/api/bookings/${id}/status`, { status });
       alert(`Booking status updated to ${status}`);
       fetchBookings();
       fetchStats();
@@ -90,7 +117,7 @@ const AdminDashboard = () => {
   const deleteUser = async (id) => {
     if (!window.confirm('Are you sure you want to delete this user?')) return;
     try {
-      await axios.delete(`/api/admin/users/${id}`);
+      await axios.delete(`${API_URL}/api/admin/users/${id}`);
       fetchUsers();
       fetchStats();
       alert('User deleted');
@@ -100,7 +127,7 @@ const AdminDashboard = () => {
   const deleteService = async (id) => {
     if (!window.confirm('Are you sure you want to delete this service?')) return;
     try {
-      await axios.delete(`/api/services/${id}`);
+      await axios.delete(`${API_URL}/api/services/${id}`);
       fetchServices();
       fetchStats();
       alert('Service deleted');
@@ -110,7 +137,7 @@ const AdminDashboard = () => {
   const deleteReview = async (id) => {
     if (!window.confirm('Are you sure you want to delete this review?')) return;
     try {
-      await axios.delete(`/api/admin/reviews/${id}`);
+      await axios.delete(`${API_URL}/api/admin/reviews/${id}`);
       fetchReviews();
       alert('Review deleted');
     } catch (err) { alert('Delete failed'); }
@@ -193,7 +220,7 @@ const AdminDashboard = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-100">
-                {users.map(u => (
+                {(Array.isArray(users) ? users : []).map(u => (
                   <tr key={u.id} className="hover:bg-gray-50/50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{u.name}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{u.email}</td>
@@ -237,7 +264,7 @@ const AdminDashboard = () => {
                     <td colSpan="6" className="px-6 py-8 text-center text-sm font-medium text-gray-500">No bookings found.</td>
                   </tr>
                 ) : (
-                  bookings.map(b => (
+                  (Array.isArray(bookings) ? bookings : []).map(b => (
                   <tr key={b.id} className="hover:bg-gray-50/50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">#{b.id}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700">{b.customer_name}</td>
@@ -298,7 +325,7 @@ const AdminDashboard = () => {
                     <td colSpan="5" className="px-6 py-8 text-center text-sm font-medium text-gray-500">No services found</td>
                   </tr>
                 ) : (
-                  services.map(s => (
+                  (Array.isArray(services) ? services : []).map(s => (
                   <tr key={s.id} className="hover:bg-gray-50/50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">#{s.id}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700">{s.title}</td>
@@ -338,7 +365,7 @@ const AdminDashboard = () => {
                     <td colSpan="5" className="px-6 py-8 text-center text-sm font-medium text-gray-500">No payments found</td>
                   </tr>
                 ) : (
-                  payments.map(p => (
+                  (Array.isArray(payments) ? payments : []).map(p => (
                   <tr key={p.id} className="hover:bg-gray-50/50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">#{p.id}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-500">#{p.booking_id}</td>
@@ -379,7 +406,7 @@ const AdminDashboard = () => {
                     <td colSpan="6" className="px-6 py-8 text-center text-sm font-medium text-gray-500">No reviews found</td>
                   </tr>
                 ) : (
-                  reviews.map(r => (
+                  (Array.isArray(reviews) ? reviews : []).map(r => (
                   <tr key={r.id} className="hover:bg-gray-50/50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">#{r.id}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700">{r.service_title}</td>
