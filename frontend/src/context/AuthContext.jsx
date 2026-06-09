@@ -3,6 +3,8 @@ import axios from 'axios';
 
 export const AuthContext = createContext();
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -10,10 +12,15 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const fetchUser = async () => {
       const token = localStorage.getItem('token');
+
       if (token) {
         try {
           axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-          const res = await axios.get('/api/auth/me');
+
+          const res = await axios.get(
+            `${API_URL}/api/auth/me`
+          );
+
           setUser(res.data);
         } catch (error) {
           console.error('Failed to fetch user', error);
@@ -21,6 +28,7 @@ export const AuthProvider = ({ children }) => {
           delete axios.defaults.headers.common['Authorization'];
         }
       }
+
       setLoading(false);
     };
 
@@ -28,18 +36,28 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (email, password) => {
-    const res = await axios.post('/api/auth/login', { email, password });
+    const res = await axios.post(
+      `${API_URL}/api/auth/login`,
+      { email, password }
+    );
+
     localStorage.setItem('token', res.data.token);
     axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
     setUser(res.data);
+
     return res.data;
   };
 
   const register = async (name, email, password, role) => {
-    const res = await axios.post('/api/auth/register', { name, email, password, role });
+    const res = await axios.post(
+      `${API_URL}/api/auth/register`,
+      { name, email, password, role }
+    );
+
     localStorage.setItem('token', res.data.token);
     axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
     setUser(res.data);
+
     return res.data;
   };
 
@@ -50,7 +68,16 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, loading, setUser }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        login,
+        register,
+        logout,
+        loading,
+        setUser
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
