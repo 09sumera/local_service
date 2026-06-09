@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { getDefaultImage } from '../utils/imageUtils';
+const API_URL = import.meta.env.VITE_API_URL;
 
 const Services = () => {
   const [services, setServices] = useState([]);
@@ -14,7 +15,9 @@ const Services = () => {
 
   const fetchServices = async () => {
     try {
-      const res = await axios.get(`/api/services?search=${search}&category=${category}`);
+      const res = await axios.get(
+        `${API_URL}/api/services?search=${search}&category=${category}`
+      );
       setServices(res.data);
     } catch (err) {
       console.error(err);
@@ -54,10 +57,10 @@ const Services = () => {
             <div key={service.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow group flex flex-col">
               <div className="relative">
                 {service.image_url ? (
-                  <img 
-                    src={service.image_url} 
-                    alt={service.title} 
-                    className="w-full h-52 object-cover" 
+                  <img
+                    src={service.image_url}
+                    alt={service.title}
+                    className="w-full h-52 object-cover"
                     onError={(e) => {
                       e.target.onerror = null;
                       e.target.src = getDefaultImage(service.category);
@@ -72,17 +75,17 @@ const Services = () => {
                   </span>
                 </div>
               </div>
-              
+
               <div className="p-6 flex flex-col flex-grow">
                 <div className="flex justify-between items-start mb-2">
                   <h3 className="text-xl font-bold text-gray-900 leading-tight group-hover:text-indigo-600 transition-colors">{service.title}</h3>
                   <span className="text-lg font-bold text-indigo-600 whitespace-nowrap ml-4">₹{service.price}</span>
                 </div>
-                
+
                 <p className="mt-2 text-sm text-gray-500 line-clamp-3 mb-6 flex-grow leading-relaxed">
                   {service.description}
                 </p>
-                
+
                 <div className="flex items-center justify-between pt-4 border-t border-gray-100 mt-auto">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-xs">
@@ -90,9 +93,9 @@ const Services = () => {
                     </div>
                     <span className="text-sm font-medium text-gray-700">{service.provider_name}</span>
                   </div>
-                  
-                  <Link 
-                    to={`/services/${service.id}`} 
+
+                  <Link
+                    to={`/services/${service.id}`}
                     className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-medium transition-colors shadow-sm"
                   >
                     View Details
