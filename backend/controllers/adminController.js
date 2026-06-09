@@ -2,18 +2,20 @@ const db = require('../config/db');
 
 const getStats = async (req, res) => {
   try {
-    const [[{ totalUsers }]] = await db.query('SELECT COUNT(*) as totalUsers FROM Users');
-    const [[{ totalProviders }]] = await db.query('SELECT COUNT(*) as totalProviders FROM Users WHERE role = "provider"');
-    const [[{ totalServices }]] = await db.query('SELECT COUNT(*) as totalServices FROM Services');
-    const [[{ totalBookings }]] = await db.query('SELECT COUNT(*) as totalBookings FROM Bookings');
-    const [[{ totalRevenue }]] = await db.query('SELECT SUM(amount) as totalRevenue FROM Payments WHERE status = "successful"');
+    const query = `
+      SELECT 
+        (SELECT COUNT(*) FROM Users) as totalUsers,
+        (SELECT COUNT(*) FROM Users WHERE role = 'provider') as totalProviders,
+        (SELECT COUNT(*) FROM Bookings) as totalBookings,
+        (SELECT COALESCE(SUM(amount), 0) FROM Payments WHERE status = 'successful') as totalRevenue
+    `;
+    const [[stats]] = await db.query(query);
 
     res.json({
-      totalUsers,
-      totalProviders,
-      totalServices,
-      totalBookings,
-      totalRevenue: totalRevenue || 0
+      totalUsers: Number(stats.totalUsers) || 0,
+      totalProviders: Number(stats.totalProviders) || 0,
+      totalBookings: Number(stats.totalBookings) || 0,
+      totalRevenue: Number(stats.totalRevenue) || 0
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
