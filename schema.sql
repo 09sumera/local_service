@@ -1,5 +1,4 @@
-CREATE DATABASE IF NOT EXISTS local_service_booking;
-USE local_service_booking;
+
 
 CREATE TABLE IF NOT EXISTS Users (
   id INT AUTO_INCREMENT PRIMARY KEY,
